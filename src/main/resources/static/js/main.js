@@ -22,54 +22,86 @@ window.togglePasswordVisibility = function (inputId, btn) {
 };
 
 document.addEventListener('DOMContentLoaded', function () {
-    // 2. Three-Dot Kebab Navigation Menu
-    const kebabBtn = document.getElementById('kebabBtn');
-    const kebabDropdown = document.getElementById('kebabDropdown');
-    const kebabWrapper = document.getElementById('kebabWrapper');
+    // 2. Left Collapsible Sidebar with Horizontal Three-Dot Toggle (⋯)
+    const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+    const appSidebar = document.getElementById('appSidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
 
-    if (kebabBtn && kebabDropdown) {
-        // Toggle on click
-        kebabBtn.addEventListener('click', function (e) {
+    function openSidebar() {
+        if (!appSidebar) return;
+        appSidebar.classList.add('open');
+        if (sidebarOverlay) sidebarOverlay.classList.add('active');
+        if (sidebarToggleBtn) {
+            sidebarToggleBtn.classList.add('active');
+            sidebarToggleBtn.setAttribute('aria-expanded', 'true');
+        }
+        document.body.classList.add('sidebar-open');
+    }
+
+    function closeSidebar() {
+        if (!appSidebar) return;
+        appSidebar.classList.remove('open');
+        if (sidebarOverlay) sidebarOverlay.classList.remove('active');
+        if (sidebarToggleBtn) {
+            sidebarToggleBtn.classList.remove('active');
+            sidebarToggleBtn.setAttribute('aria-expanded', 'false');
+        }
+        document.body.classList.remove('sidebar-open');
+    }
+
+    function toggleSidebar() {
+        if (!appSidebar) return;
+        if (appSidebar.classList.contains('open')) {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
+    }
+
+    if (sidebarToggleBtn && appSidebar) {
+        // Toggle on horizontal three-dot button click
+        sidebarToggleBtn.addEventListener('click', function (e) {
             e.stopPropagation();
-            const isOpen = kebabDropdown.classList.contains('open');
-            if (isOpen) {
-                closeKebabMenu();
-            } else {
-                openKebabMenu();
-            }
+            toggleSidebar();
         });
 
-        function openKebabMenu() {
-            kebabDropdown.classList.add('open');
-            kebabBtn.classList.add('active');
-            kebabBtn.setAttribute('aria-expanded', 'true');
+        // Close button inside sidebar
+        if (sidebarCloseBtn) {
+            sidebarCloseBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                closeSidebar();
+            });
         }
 
-        function closeKebabMenu() {
-            kebabDropdown.classList.remove('open');
-            kebabBtn.classList.remove('active');
-            kebabBtn.setAttribute('aria-expanded', 'false');
+        // Close on clicking the backdrop overlay (e.g. mobile/desktop outside click)
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function () {
+                closeSidebar();
+            });
         }
 
-        // Close on clicking anywhere outside
+        // Close on clicking anywhere outside when sidebar is open
         document.addEventListener('click', function (e) {
-            if (kebabWrapper && !kebabWrapper.contains(e.target)) {
-                closeKebabMenu();
+            if (appSidebar.classList.contains('open') &&
+                !appSidebar.contains(e.target) &&
+                !sidebarToggleBtn.contains(e.target)) {
+                closeSidebar();
             }
         });
 
-        // Close when clicking an item inside dropdown
-        kebabDropdown.addEventListener('click', function (e) {
-            const item = e.target.closest('.dropdown-item');
-            if (item) {
-                closeKebabMenu();
+        // Close when clicking an item inside sidebar
+        appSidebar.addEventListener('click', function (e) {
+            const item = e.target.closest('.sidebar-nav-item');
+            if (item && !item.classList.contains('sidebar-logout-btn')) {
+                closeSidebar();
             }
         });
 
         // Close on Escape key
         document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') {
-                closeKebabMenu();
+            if (e.key === 'Escape' && appSidebar.classList.contains('open')) {
+                closeSidebar();
             }
         });
     }
