@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${employee.fullName})}"></head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <div th:replace="~{fragments/layout :: sidebar('employees')}"></div>
+
+        <!-- Main Wrapper -->
+        <div class="main-wrapper">
+            <header th:replace="~{fragments/layout :: topbar('Employee Profile')}"></header>
+
+            <main class="content-body">
+                <!-- Flash Alerts -->
+                <div th:replace="~{fragments/layout :: alerts}"></div>
+
+                <!-- Profile Card -->
+                <div class="profile-card">
+                    <!-- Banner -->
+                    <div class="profile-banner"></div>
+
+                    <!-- Header Content -->
+                    <div class="profile-header-content">
+                        <div style="display: flex; align-items: flex-end; gap: 20px;">
+                            <div class="profile-avatar" 
+                                 th:text="${#strings.substring(employee.firstName, 0, 1)} + ${#strings.substring(employee.lastName, 0, 1)}">
+                                JD
+                            </div>
+                            <div class="profile-title-group">
+                                <h1 class="profile-name" th:text="${employee.fullName}">Full Name</h1>
+                                <div class="profile-designation" th:text="${employee.designation}">Designation</div>
+                                <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+                                    <span class="dept-badge" th:classappend="'dept-' + ${employee.department.name()}"
+                                          th:text="${employee.departmentDisplayName}">Department</span>
+                                    <span class="badge" th:classappend="${employee.status.name() == 'ACTIVE'} ? 'badge-active' : 'badge-inactive'">
+                                        <span class="badge-dot"></span>
+                                        <span th:text="${employee.statusDisplayName}">Active</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <!-- Toggle Status Form -->
+                            <form th:action="@{/employees/{id}/toggle-status(id=${employee.id})}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-secondary">
+                                    <span th:text="${employee.status.name() == 'ACTIVE'} ? 'Deactivate' : 'Activate'">Toggle Status</span>
+                                </button>
+                            </form>
+
+                            <a th:href="@{/employees/{id}/edit(id=${employee.id})}" class="btn btn-secondary">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                Edit
+                            </a>
+
+                            <button type="button" class="btn btn-danger" 
+                                    th:onclick="'openDeleteModal(' + ${employee.id} + ', \'' + ${#strings.escapeJavaScript(employee.fullName)} + '\')'">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Details Body -->
+                    <div class="profile-body">
+                        <!-- Employee ID -->
+                        <div class="detail-item">
+                            <span class="detail-label">System Employee ID</span>
+                            <span class="detail-value" th:text="'EMP-' + ${#numbers.formatInteger(employee.id, 4)}">EMP-0001</span>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="detail-item">
+                            <span class="detail-label">Work Email</span>
+                            <span class="detail-value">
+                                <a th:href="'mailto:' + ${employee.email}" th:text="${employee.email}" style="color: var(--primary); text-decoration: none;">
+                                    email@company.com
+                                </a>
+                            </span>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="detail-item">
+                            <span class="detail-label">Direct Contact Phone</span>
+                            <span class="detail-value" th:text="${employee.phoneNumber}">+1 000-000-0000</span>
+                        </div>
+
+                        <!-- Department -->
+                        <div class="detail-item">
+                            <span class="detail-label">Department</span>
+                            <span class="detail-value" th:text="${employee.departmentDisplayName}">Engineering</span>
+                        </div>
+
+                        <!-- Designation -->
+                        <div class="detail-item">
+                            <span class="detail-label">Official Designation</span>
+                            <span class="detail-value" th:text="${employee.designation}">Senior Software Engineer</span>
+                        </div>
+
+                        <!-- Joining Date -->
+                        <div class="detail-item">
+                            <span class="detail-label">Date of Joining</span>
+                            <span class="detail-value" th:text="${#temporals.format(employee.joiningDate, 'MMMM dd, yyyy')}">January 01, 2024</span>
+                        </div>
+
+                        <!-- Annual Salary -->
+                        <div class="detail-item">
+                            <span class="detail-label">Annual Base Salary</span>
+                            <span class="detail-value" style="color: #059669; font-size: 1.25rem;"
+                                  th:text="'$' + ${#numbers.formatDecimal(employee.salary, 1, 'COMMA', 2, 'POINT')}">
+                                $0.00
+                            </span>
+                        </div>
+
+                        <!-- Monthly Breakdown -->
+                        <div class="detail-item">
+                            <span class="detail-label">Estimated Monthly Gross</span>
+                            <span class="detail-value" 
+                                  th:text="'$' + ${#numbers.formatDecimal(employee.salary / 12, 1, 'COMMA', 2, 'POINT')}">
+                                $0.00
+                            </span>
+                        </div>
+
+                        <!-- Record Created -->
+                        <div class="detail-item">
+                            <span class="detail-label">System Registration</span>
+                            <span class="detail-value" style="font-size: 0.9rem; color: var(--slate-600);"
+                                  th:text="${employee.createdAt != null} ? ${#temporals.format(employee.createdAt, 'MMM dd, yyyy HH:mm')} : 'N/A'">
+                                Date
+                            </span>
+                        </div>
+
+                        <!-- Last Updated -->
+                        <div class="detail-item">
+                            <span class="detail-label">Last Record Update</span>
+                            <span class="detail-value" style="font-size: 0.9rem; color: var(--slate-600);"
+                                  th:text="${employee.updatedAt != null} ? ${#temporals.format(employee.updatedAt, 'MMM dd, yyyy HH:mm')} : 'N/A'">
+                                Date
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Nav -->
+                    <div style="padding: 20px 32px; background: var(--slate-50); border-top: 1px solid var(--slate-200); display: flex; justify-content: flex-start;">
+                        <a th:href="@{/employees}" class="btn btn-secondary">
+                            &larr; Back to Directory
+                        </a>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div th:replace="~{fragments/layout :: deleteModal}"></div>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

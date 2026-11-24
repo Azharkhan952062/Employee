@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('HR Analytics Dashboard')}"></head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <div th:replace="~{fragments/layout :: sidebar('dashboard')}"></div>
+
+        <!-- Main Wrapper -->
+        <div class="main-wrapper">
+            <header th:replace="~{fragments/layout :: topbar('HR Analytics Dashboard')}"></header>
+
+            <main class="content-body">
+                <!-- Flash Alerts -->
+                <div th:replace="~{fragments/layout :: alerts}"></div>
+
+                <!-- 1. Key Performance Indicators / Top Stats Grid -->
+                <div class="stats-grid">
+                    <!-- Total Employees -->
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">Total Headcount</span>
+                            <div class="stat-icon icon-blue">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" th:text="${stats.totalEmployees}">0</div>
+                        <div class="stat-subtitle">Total records in database</div>
+                    </div>
+
+                    <!-- Active Employees -->
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">Active Staff</span>
+                            <div class="stat-icon icon-green">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" style="color: var(--success);" th:text="${stats.activeEmployees}">0</div>
+                        <div class="stat-subtitle">Currently active workforce</div>
+                    </div>
+
+                    <!-- Inactive Employees -->
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">Inactive / On Leave</span>
+                            <div class="stat-icon icon-slate">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" style="color: var(--slate-500);" th:text="${stats.inactiveEmployees}">0</div>
+                        <div class="stat-subtitle">Former or suspended staff</div>
+                    </div>
+
+                    <!-- Average Salary -->
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">Average Salary</span>
+                            <div class="stat-icon icon-purple">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" th:text="'$' + ${#numbers.formatDecimal(stats.averageSalary, 1, 'COMMA', 2, 'POINT')}">$0.00</div>
+                        <div class="stat-subtitle">Mean annual compensation</div>
+                    </div>
+
+                    <!-- Monthly Payroll -->
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">Monthly Payroll</span>
+                            <div class="stat-icon icon-amber">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M9 8h6m-5 0a3 3 0 110 6H9l3 3m-3-6h6m6 1a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" th:text="'$' + ${#numbers.formatDecimal(stats.totalMonthlyPayroll, 1, 'COMMA', 2, 'POINT')}">$0.00</div>
+                        <div class="stat-subtitle">Active workforce burn / mo</div>
+                    </div>
+                </div>
+
+                <!-- 2. Charts Section -->
+                <div class="dashboard-grid">
+                    <!-- Headcount Distribution Chart -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <h3 class="card-title">Department Distribution</h3>
+                                <p class="card-subtitle">Headcount allocation across corporate divisions</p>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div style="position: relative; height: 280px; width: 100%;">
+                                <canvas id="deptDistributionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Average Compensation Chart -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <h3 class="card-title">Average Salary by Dept</h3>
+                                <p class="card-subtitle">Mean compensation analysis</p>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div style="position: relative; height: 280px; width: 100%;">
+                                <canvas id="deptSalaryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Department Breakdown & Quick Stats Table -->
+                <div class="card" style="margin-bottom: 32px;">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title">Department Metrics Summary</h3>
+                            <p class="card-subtitle">Aggregated metrics calculated in real-time from the database</p>
+                        </div>
+                        <a th:href="@{/employees}" class="btn btn-secondary btn-sm">Explore Directory</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Department</th>
+                                    <th>Employees</th>
+                                    <th>Share (%)</th>
+                                    <th>Avg Annual Salary</th>
+                                    <th>Total Budget Allocation</th>
+                                    <th style="text-align: right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="deptStat : ${stats.departmentStats}">
+                                    <td>
+                                        <span class="dept-badge" th:classappend="'dept-' + ${deptStat.department.name()}"
+                                              th:text="${deptStat.departmentDisplayName}">Department</span>
+                                    </td>
+                                    <td>
+                                        <strong th:text="${deptStat.employeeCount}">0</strong>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <div style="flex-grow: 1; height: 6px; background: var(--slate-200); border-radius: 3px; overflow: hidden; max-width: 80px;">
+                                                <div th:style="'height: 100%; background: var(--primary); width: ' + ${deptStat.percentage} + '%;'"></div>
+                                            </div>
+                                            <span style="font-size: 0.8rem; font-weight: 600;" th:text="${deptStat.percentage} + '%'">0%</span>
+                                        </div>
+                                    </td>
+                                    <td th:text="'$' + ${#numbers.formatDecimal(deptStat.averageSalary, 1, 'COMMA', 2, 'POINT')}">$0.00</td>
+                                    <td th:text="'$' + ${#numbers.formatDecimal(deptStat.totalSalary, 1, 'COMMA', 2, 'POINT')}">$0.00</td>
+                                    <td style="text-align: right;">
+                                        <a th:href="@{/employees(department=${deptStat.department.name()})}" class="btn btn-secondary btn-sm">
+                                            Filter
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(stats.departmentStats)}">
+                                    <td colspan="6" style="text-align: center; padding: 24px; color: var(--slate-400);">
+                                        No employee data available in database yet.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 4. Recent Hires Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title">Recent Additions</h3>
+                            <p class="card-subtitle">Latest employees onboarded to the organization</p>
+                        </div>
+                        <a th:href="@{/employees/new}" class="btn btn-primary btn-sm">Add New</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Department</th>
+                                    <th>Designation</th>
+                                    <th>Salary</th>
+                                    <th>Joining Date</th>
+                                    <th>Status</th>
+                                    <th style="text-align: right;">Profile</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="emp : ${stats.recentHires}">
+                                    <td>
+                                        <div class="table-user">
+                                            <div class="avatar-initial" th:text="${#strings.substring(emp.firstName, 0, 1)} + ${#strings.substring(emp.lastName, 0, 1)}">AB</div>
+                                            <div class="table-user-info">
+                                                <a th:href="@{/employees/{id}(id=${emp.id})}" class="table-user-name" th:text="${emp.fullName}">Full Name</a>
+                                                <div class="table-user-email" th:text="${emp.email}">email@domain.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="dept-badge" th:classappend="'dept-' + ${emp.department.name()}"
+                                              th:text="${emp.departmentDisplayName}">Dept</span>
+                                    </td>
+                                    <td th:text="${emp.designation}">Designation</td>
+                                    <td th:text="'$' + ${#numbers.formatDecimal(emp.salary, 1, 'COMMA', 2, 'POINT')}">$0.00</td>
+                                    <td th:text="${#temporals.format(emp.joiningDate, 'MMM dd, yyyy')}">Jan 01, 2024</td>
+                                    <td>
+                                        <span class="badge" th:classappend="${emp.status.name() == 'ACTIVE'} ? 'badge-active' : 'badge-inactive'">
+                                            <span class="badge-dot"></span>
+                                            <span th:text="${emp.statusDisplayName}">Active</span>
+                                        </span>
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <a th:href="@{/employees/{id}(id=${emp.id})}" class="btn btn-secondary btn-sm">
+                                            View
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(stats.recentHires)}">
+                                    <td colspan="7" style="text-align: center; padding: 24px; color: var(--slate-400);">
+                                        No recent hires recorded.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Scripts and Chart Initialization -->
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        document.addEventListener('DOMContentLoaded', function () {
+            const deptStats = /*[[${stats.departmentStats}]]*/ [];
+
+            if (deptStats && deptStats.length > 0) {
+                const labels = deptStats.map(d => d.departmentDisplayName);
+                const counts = deptStats.map(d => d.employeeCount);
+                const salaries = deptStats.map(d => d.averageSalary);
+
+                const palette = [
+                    '#4f46e5', '#06b6d4', '#10b981', '#f59e0b',
+                    '#8b5cf6', '#ec4899', '#3b82f6', '#64748b'
+                ];
+
+                // 1. Department Distribution Donut Chart
+                const distCtx = document.getElementById('deptDistributionChart');
+                if (distCtx) {
+                    new Chart(distCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: counts,
+                                backgroundColor: palette.slice(0, labels.length),
+                                borderWidth: 2,
+                                borderColor: '#ffffff',
+                                hoverOffset: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                    labels: {
+                                        boxWidth: 12,
+                                        font: { size: 11, family: '-apple-system, sans-serif' },
+                                        padding: 12
+                                    }
+                                }
+                            },
+                            cutout: '65%'
+                        }
+                    });
+                }
+
+                // 2. Department Average Salary Bar Chart
+                const salCtx = document.getElementById('deptSalaryChart');
+                if (salCtx) {
+                    new Chart(salCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Avg Salary ($)',
+                                data: salaries,
+                                backgroundColor: '#6366f1',
+                                borderRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return 'Avg: $' + Number(context.parsed.y).toLocaleString(undefined, {minimumFractionDigits: 2});
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: { color: '#f1f5f9' },
+                                    ticks: {
+                                        callback: function(value) {
+                                            return '$' + (value / 1000) + 'k';
+                                        },
+                                        font: { size: 10 }
+                                    }
+                                },
+                                x: {
+                                    grid: { display: false },
+                                    ticks: {
+                                        maxRotation: 45,
+                                        minRotation: 30,
+                                        font: { size: 10 }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        });
+        /*]]>*/
+    </script>
+</body>
+</html>

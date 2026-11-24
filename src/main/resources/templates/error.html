@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('System Error')}"></head>
+<body>
+    <div class="app-container" style="justify-content: center; align-items: center; background: var(--slate-100);">
+        <div class="card" style="max-width: 500px; width: 90%; text-align: center; padding: 40px 32px; box-shadow: var(--shadow-lg);">
+            <div style="width: 64px; height: 64px; border-radius: var(--radius-full); background: #fee2e2; color: var(--danger); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+
+            <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--slate-900); margin-bottom: 8px;" th:text="${status} ?: 'Error'">500</h1>
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--slate-700); margin-bottom: 12px;" th:text="${error} ?: 'Something went wrong'">Error Occurred</h3>
+            <p style="color: var(--slate-500); font-size: 0.9rem; margin-bottom: 24px;" th:text="${message} ?: 'An unexpected error occurred while processing your request.'">
+                An unexpected error occurred.
+            </p>
+
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <a th:href="@{/dashboard}" class="btn btn-primary">Go to Dashboard</a>
+                <a th:href="@{/employees}" class="btn btn-secondary">Employee Directory</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

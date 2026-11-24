@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' | EMS HR Cloud'">Employee Management System</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <!-- Chart.js CDN for clean interactive HR analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Sidebar Fragment -->
+    <aside th:fragment="sidebar(activeNav)" class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">HR</div>
+            <div class="sidebar-title">
+                <h1>WorkForce Cloud</h1>
+                <span>HR & Operations</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-label">Main Menu</div>
+            <a th:href="@{/dashboard}" class="nav-item" th:classappend="${activeNav == 'dashboard'} ? 'active'">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                HR Dashboard
+            </a>
+
+            <a th:href="@{/employees}" class="nav-item" th:classappend="${activeNav == 'employees'} ? 'active'">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                Employee Directory
+            </a>
+
+            <a th:href="@{/employees/new}" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                </svg>
+                Add Employee
+            </a>
+
+            <div class="nav-label" style="margin-top: 16px;">System</div>
+            <a th:href="@{/api/employees/dashboard-stats}" target="_blank" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                </svg>
+                REST API (JSON)
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-avatar">HR</div>
+            <div class="user-info">
+                <div class="name">HR Administrator</div>
+                <div class="role">Live Production DB</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Topbar Fragment -->
+    <header th:fragment="topbar(pageTitle)" class="topbar">
+        <div class="topbar-left">
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+            <h2 class="page-title" th:text="${pageTitle}">Page Title</h2>
+        </div>
+        <div class="topbar-right">
+            <a th:href="@{/employees/new}" class="btn btn-primary btn-sm">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                New Employee
+            </a>
+        </div>
+    </header>
+
+    <!-- Flash Alerts Fragment -->
+    <div th:fragment="alerts" class="alert-container">
+        <div th:if="${successMessage}" class="alert alert-success">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span th:text="${successMessage}">Success message</span>
+            </div>
+            <button type="button" class="alert-close">&times;</button>
+        </div>
+
+        <div th:if="${errorMessage}" class="alert alert-error">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <span th:text="${errorMessage}">Error message</span>
+            </div>
+            <button type="button" class="alert-close">&times;</button>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal Fragment -->
+    <div th:fragment="deleteModal" class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirm Deletion</h3>
+                <button type="button" class="alert-close" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete employee <strong id="deleteEmployeeName">this employee</strong>?</p>
+                <p style="margin-top: 8px; font-size: 0.85rem; color: var(--danger);">This action is permanent and cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                <form id="deleteForm" method="post" action="">
+                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts Fragment -->
+    <div th:fragment="scripts">
+        <script th:src="@{/js/main.js}"></script>
+    </div>
+</body>
+</html>

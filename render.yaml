@@ -1,0 +1,32 @@
+# ==============================================================================
+# Render Blueprint Configuration (render.yaml)
+# Automatically deploys the Spring Boot Web Service & Managed PostgreSQL
+# ==============================================================================
+
+services:
+  # Web Application Service
+  - type: web
+    name: employee-management-system
+    env: docker
+    plan: free
+    region: oregon
+    dockerfilePath: Dockerfile
+    healthCheckPath: /dashboard
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: USE_RENDER_DATABASE_URL
+        value: "true"
+      # Wire Render PostgreSQL connection string automatically
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ems-postgres
+          property: connectionString
+
+databases:
+  # Managed PostgreSQL Database
+  - name: ems-postgres
+    plan: free
+    region: oregon
+    databaseName: emsdb
+    user: emsuser
