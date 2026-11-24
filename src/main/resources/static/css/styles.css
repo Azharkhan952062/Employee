@@ -1112,12 +1112,13 @@ body.sidebar-open .app-layout {
     border-color: var(--primary-border);
 }
 
-.sidebar-toggle-btn .h-dots-svg {
-    transition: transform 0.2s ease;
+.sidebar-toggle-btn .hamburger-svg {
+    transition: transform 0.2s ease, stroke 0.2s ease;
+    stroke: currentColor;
 }
 
-.sidebar-toggle-btn:hover .h-dots-svg {
-    transform: scale(1.1);
+.sidebar-toggle-btn:hover .hamburger-svg {
+    transform: scale(1.08);
 }
 
 /* --------------------------------------------------------------------------
