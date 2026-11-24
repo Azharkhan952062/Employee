@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('My Profile')}"></head>
+<body>
+    <div class="app-layout">
+        <!-- Top Navigation Bar with Three-Dot Menu -->
+        <header th:replace="~{fragments/layout :: header('My Profile', 'profile')}"></header>
+
+        <!-- Main Content Area -->
+        <main class="content-body">
+            <!-- Flash Alerts -->
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="profile-card">
+                <!-- Profile Banner -->
+                <div class="profile-banner"></div>
+
+                <!-- Header Content -->
+                <div class="profile-header-content">
+                    <div style="display: flex; align-items: flex-end; gap: 20px;">
+                        <div class="profile-avatar" 
+                             th:text="${#strings.substring(profile.fullName, 0, 1).toUpperCase()}">
+                            A
+                        </div>
+                        <div class="profile-title-group">
+                            <h1 class="profile-name" th:text="${profile.fullName}">User Full Name</h1>
+                            <div class="profile-designation" th:text="${profile.email}">user@company.com</div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+                                <span class="badge badge-active">
+                                    <span class="badge-dot"></span>
+                                    <span th:text="${profile.role}">ADMIN</span>
+                                </span>
+                                <span class="badge" style="background: var(--slate-100); color: var(--slate-700);">Authenticated User</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <a th:href="@{/dashboard}" class="btn btn-secondary">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                      d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                            </svg>
+                            Back to Dashboard
+                        </a>
+                        <form th:action="@{/logout}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-danger">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                </svg>
+                                Sign Out
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Profile Body Details -->
+                <div class="profile-body">
+                    <!-- User ID -->
+                    <div class="detail-item">
+                        <span class="detail-label">Account User ID</span>
+                        <span class="detail-value" th:text="'USR-' + ${#numbers.formatInteger(profile.id, 4)}">USR-0001</span>
+                    </div>
+
+                    <!-- Full Name -->
+                    <div class="detail-item">
+                        <span class="detail-label">Full Name</span>
+                        <span class="detail-value" th:text="${profile.fullName}">Administrator</span>
+                    </div>
+
+                    <!-- Email Address -->
+                    <div class="detail-item">
+                        <span class="detail-label">Registered Email</span>
+                        <span class="detail-value" th:text="${profile.email}">admin@ems.com</span>
+                    </div>
+
+                    <!-- Security Role -->
+                    <div class="detail-item">
+                        <span class="detail-label">Assigned Security Role</span>
+                        <span class="detail-value" th:text="${profile.role}">ADMIN</span>
+                    </div>
+
+                    <!-- Member Since -->
+                    <div class="detail-item">
+                        <span class="detail-label">Member Since</span>
+                        <span class="detail-value" th:text="${#temporals.format(profile.createdAt, 'MMMM dd, yyyy HH:mm')}">Jan 01, 2024</span>
+                    </div>
+
+                    <!-- Session Security Info -->
+                    <div class="detail-item">
+                        <span class="detail-label">Authentication Type</span>
+                        <span class="detail-value">BCrypt Hashed • Spring Security Session</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Delete Confirmation Modal & Scripts -->
+    <div th:replace="~{fragments/layout :: deleteModal}"></div>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

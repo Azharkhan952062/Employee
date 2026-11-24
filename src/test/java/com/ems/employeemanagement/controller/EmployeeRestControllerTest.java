@@ -1,5 +1,6 @@
 package com.ems.employeemanagement.controller;
 
+import com.ems.employeemanagement.config.SecurityConfig;
 import com.ems.employeemanagement.dto.EmployeeRequestDto;
 import com.ems.employeemanagement.dto.EmployeeResponseDto;
 import com.ems.employeemanagement.entity.Department;
@@ -8,6 +9,7 @@ import com.ems.employeemanagement.entity.EmployeeStatus;
 import com.ems.employeemanagement.exception.DuplicateResourceException;
 import com.ems.employeemanagement.exception.ResourceNotFoundException;
 import com.ems.employeemanagement.service.EmployeeService;
+import com.ems.employeemanagement.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,9 +17,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -28,10 +32,13 @@ import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(EmployeeRestController.class)
+@Import(SecurityConfig.class)
+@WithMockUser(username = "admin@ems.com", roles = {"ADMIN"})
 class EmployeeRestControllerTest {
 
     @Autowired
@@ -42,6 +49,9 @@ class EmployeeRestControllerTest {
 
     @MockBean
     private EmployeeService employeeService;
+
+    @MockBean
+    private UserService userService;
 
     private EmployeeResponseDto sampleResponse;
     private EmployeeRequestDto sampleValidRequest;

@@ -3,10 +3,13 @@ package com.ems.employeemanagement.config;
 import com.ems.employeemanagement.entity.Department;
 import com.ems.employeemanagement.entity.Employee;
 import com.ems.employeemanagement.entity.EmployeeStatus;
+import com.ems.employeemanagement.entity.User;
 import com.ems.employeemanagement.repository.EmployeeRepository;
+import com.ems.employeemanagement.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -19,13 +22,34 @@ public class DataInitializer implements CommandLineRunner {
     private static final Logger log = LoggerFactory.getLogger(DataInitializer.class);
 
     private final EmployeeRepository employeeRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public DataInitializer(EmployeeRepository employeeRepository) {
+    public DataInitializer(EmployeeRepository employeeRepository,
+                           UserRepository userRepository,
+                           PasswordEncoder passwordEncoder) {
         this.employeeRepository = employeeRepository;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) {
+        // 1. Seed Default Admin User if no users exist
+        if (userRepository.count() == 0) {
+            log.info("No users found. Seeding initial admin user: admin@ems.com");
+            User admin = new User(
+                    null,
+                    "HR Administrator",
+                    "admin@ems.com",
+                    passwordEncoder.encode("Password@123"),
+                    "ROLE_ADMIN"
+            );
+            userRepository.save(admin);
+            log.info("Default admin user created successfully with email: admin@ems.com / Password@123");
+        }
+
+        // 2. Seed Employees if database is empty
         if (employeeRepository.count() > 0) {
             log.info("Database already contains employees. Skipping initial seeding.");
             return;

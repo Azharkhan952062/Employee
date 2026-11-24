@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:fragment="head(title)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,80 +9,126 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
-    <!-- Sidebar Fragment -->
-    <aside th:fragment="sidebar(activeNav)" class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-logo">HR</div>
-            <div class="sidebar-title">
-                <h1>WorkForce Cloud</h1>
-                <span>HR & Operations</span>
+
+    <!-- Top Navigation Header with Brand and Three-Dot Kebab Menu -->
+    <header th:fragment="header(pageTitle, activeNav)" class="app-navbar">
+        <div class="nav-container">
+            <!-- Brand / Logo Area -->
+            <div class="nav-brand">
+                <a th:href="@{/dashboard}" class="brand-link">
+                    <div class="brand-badge">HR</div>
+                    <div class="brand-text">
+                        <span class="brand-title">WorkForce Cloud</span>
+                        <span class="brand-subtitle">Enterprise HR Operations</span>
+                    </div>
+                </a>
+                <span class="nav-divider"></span>
+                <span class="nav-current-page" th:text="${pageTitle}">HR Dashboard</span>
             </div>
-        </div>
 
-        <nav class="sidebar-nav">
-            <div class="nav-label">Main Menu</div>
-            <a th:href="@{/dashboard}" class="nav-item" th:classappend="${activeNav == 'dashboard'} ? 'active'">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                </svg>
-                HR Dashboard
-            </a>
+            <!-- Navbar Right Actions -->
+            <div class="nav-actions">
+                <!-- Quick Onboard Action -->
+                <a th:href="@{/employees/new}" class="btn btn-primary btn-sm btn-onboard">
+                    <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    <span>New Employee</span>
+                </a>
 
-            <a th:href="@{/employees}" class="nav-item" th:classappend="${activeNav == 'employees'} ? 'active'">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                </svg>
-                Employee Directory
-            </a>
+                <!-- User Info Pill -->
+                <a th:href="@{/profile}" class="user-pill" title="View Profile">
+                    <div class="user-pill-avatar" th:text="${#authentication != null and #authentication.name != null ? #strings.substring(#authentication.name, 0, 1).toUpperCase() : 'U'}">U</div>
+                    <span class="user-pill-name" th:text="${#authentication != null and #authentication.name != null ? #authentication.name : 'User'}">User</span>
+                </a>
 
-            <a th:href="@{/employees/new}" class="nav-item">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                          d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                </svg>
-                Add Employee
-            </a>
+                <!-- Three-Dot Kebab Menu Container -->
+                <div class="kebab-wrapper" id="kebabWrapper">
+                    <button type="button" class="kebab-btn" id="kebabBtn" aria-label="Navigation Menu" aria-haspopup="true" aria-expanded="false" title="Menu Options">
+                        <svg class="kebab-svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                            <circle cx="12" cy="5" r="2.25"/>
+                            <circle cx="12" cy="12" r="2.25"/>
+                            <circle cx="12" cy="19" r="2.25"/>
+                        </svg>
+                    </button>
 
-            <div class="nav-label" style="margin-top: 16px;">System</div>
-            <a th:href="@{/api/employees/dashboard-stats}" target="_blank" class="nav-item">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                          d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
-                </svg>
-                REST API (JSON)
-            </a>
-        </nav>
+                    <!-- Three-Dot Dropdown Menu -->
+                    <div class="kebab-dropdown" id="kebabDropdown">
+                        <div class="dropdown-header">
+                            <div class="dropdown-user-name" th:text="${#authentication != null and #authentication.name != null ? #authentication.name : 'user@company.com'}">user@company.com</div>
+                            <div class="dropdown-user-role">HR Administrator • Active Session</div>
+                        </div>
 
-        <div class="sidebar-footer">
-            <div class="user-avatar">HR</div>
-            <div class="user-info">
-                <div class="name">HR Administrator</div>
-                <div class="role">Live Production DB</div>
+                        <div class="dropdown-menu-list">
+                            <!-- 1. HR Dashboard -->
+                            <a th:href="@{/dashboard}" class="dropdown-item" th:classappend="${activeNav == 'dashboard'} ? 'active'">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                </svg>
+                                <span>HR Dashboard</span>
+                            </a>
+
+                            <!-- 2. Employee Directory -->
+                            <a th:href="@{/employees}" class="dropdown-item" th:classappend="${activeNav == 'employees'} ? 'active'">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                </svg>
+                                <span>Employee Directory</span>
+                            </a>
+
+                            <!-- 3. Add Employee -->
+                            <a th:href="@{/employees/new}" class="dropdown-item" th:classappend="${activeNav == 'new-employee'} ? 'active'">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                                </svg>
+                                <span>Add Employee</span>
+                            </a>
+
+                            <!-- 4. REST API -->
+                            <a th:href="@{/api/employees/dashboard-stats}" target="_blank" class="dropdown-item">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                                </svg>
+                                <span>REST API (JSON)</span>
+                            </a>
+
+                            <div class="dropdown-divider"></div>
+
+                            <!-- 5. Profile -->
+                            <a th:href="@{/profile}" class="dropdown-item" th:classappend="${activeNav == 'profile'} ? 'active'">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                </svg>
+                                <span>My Profile</span>
+                            </a>
+
+                            <!-- 6. Logout -->
+                            <form th:action="@{/logout}" method="post" id="logoutForm" style="margin: 0;">
+                                <button type="submit" class="dropdown-item logout-item" style="width: 100%; border: none; background: none; font-family: inherit; font-size: inherit; text-align: left; cursor: pointer;">
+                                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                    </svg>
+                                    <span>Sign Out</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </aside>
-
-    <!-- Topbar Fragment -->
-    <header th:fragment="topbar(pageTitle)" class="topbar">
-        <div class="topbar-left">
-            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                </svg>
-            </button>
-            <h2 class="page-title" th:text="${pageTitle}">Page Title</h2>
-        </div>
-        <div class="topbar-right">
-            <a th:href="@{/employees/new}" class="btn btn-primary btn-sm">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                New Employee
-            </a>
         </div>
     </header>
+
+    <!-- Backward-compatibility stub for sidebar (empty) -->
+    <div th:fragment="sidebar(activeNav)" style="display: none;"></div>
+
+    <!-- Backward-compatibility stub for topbar -->
+    <div th:fragment="topbar(pageTitle)" style="display: none;"></div>
 
     <!-- Flash Alerts Fragment -->
     <div th:fragment="alerts" class="alert-container">

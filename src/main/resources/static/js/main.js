@@ -2,28 +2,79 @@
  * Employee Management System - JavaScript Interactions
  */
 
-document.addEventListener('DOMContentLoaded', function () {
-    // 1. Mobile Sidebar Toggle
-    const menuToggle = document.getElementById('menuToggle');
-    const sidebar = document.getElementById('sidebar');
+// 1. Password Visibility Toggle (Available immediately)
+window.togglePasswordVisibility = function (inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (!input || !btn) return;
 
-    if (menuToggle && sidebar) {
-        menuToggle.addEventListener('click', function () {
-            sidebar.classList.toggle('open');
+    const eyeOpen = btn.querySelector('.eye-open');
+    const eyeClosed = btn.querySelector('.eye-closed');
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (eyeOpen) eyeOpen.style.display = 'none';
+        if (eyeClosed) eyeClosed.style.display = 'block';
+    } else {
+        input.type = 'password';
+        if (eyeOpen) eyeOpen.style.display = 'block';
+        if (eyeClosed) eyeClosed.style.display = 'none';
+    }
+};
+
+document.addEventListener('DOMContentLoaded', function () {
+    // 2. Three-Dot Kebab Navigation Menu
+    const kebabBtn = document.getElementById('kebabBtn');
+    const kebabDropdown = document.getElementById('kebabDropdown');
+    const kebabWrapper = document.getElementById('kebabWrapper');
+
+    if (kebabBtn && kebabDropdown) {
+        // Toggle on click
+        kebabBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            const isOpen = kebabDropdown.classList.contains('open');
+            if (isOpen) {
+                closeKebabMenu();
+            } else {
+                openKebabMenu();
+            }
         });
 
-        // Close sidebar if clicked outside on mobile
+        function openKebabMenu() {
+            kebabDropdown.classList.add('open');
+            kebabBtn.classList.add('active');
+            kebabBtn.setAttribute('aria-expanded', 'true');
+        }
+
+        function closeKebabMenu() {
+            kebabDropdown.classList.remove('open');
+            kebabBtn.classList.remove('active');
+            kebabBtn.setAttribute('aria-expanded', 'false');
+        }
+
+        // Close on clicking anywhere outside
         document.addEventListener('click', function (e) {
-            if (window.innerWidth <= 768 &&
-                !sidebar.contains(e.target) &&
-                !menuToggle.contains(e.target) &&
-                sidebar.classList.contains('open')) {
-                sidebar.classList.remove('open');
+            if (kebabWrapper && !kebabWrapper.contains(e.target)) {
+                closeKebabMenu();
+            }
+        });
+
+        // Close when clicking an item inside dropdown
+        kebabDropdown.addEventListener('click', function (e) {
+            const item = e.target.closest('.dropdown-item');
+            if (item) {
+                closeKebabMenu();
+            }
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeKebabMenu();
             }
         });
     }
 
-    // 2. Auto-dismiss Flash Alerts
+    // 3. Auto-dismiss Flash Alerts
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(function (alert) {
         setTimeout(function () {
@@ -41,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // 3. Delete Confirmation Modal
+    // 4. Delete Confirmation Modal
     window.openDeleteModal = function (employeeId, employeeName) {
         const modal = document.getElementById('deleteModal');
         const form = document.getElementById('deleteForm');

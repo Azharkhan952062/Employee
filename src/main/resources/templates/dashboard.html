@@ -2,15 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('HR Analytics Dashboard')}"></head>
 <body>
-    <div class="app-container">
-        <!-- Sidebar Navigation -->
-        <div th:replace="~{fragments/layout :: sidebar('dashboard')}"></div>
+    <div class="app-layout">
+        <!-- Top Navigation Header with Three-Dot Menu -->
+        <header th:replace="~{fragments/layout :: header('HR Analytics Dashboard', 'dashboard')}"></header>
 
-        <!-- Main Wrapper -->
-        <div class="main-wrapper">
-            <header th:replace="~{fragments/layout :: topbar('HR Analytics Dashboard')}"></header>
-
-            <main class="content-body">
+        <main class="content-body">
                 <!-- Flash Alerts -->
                 <div th:replace="~{fragments/layout :: alerts}"></div>
 
@@ -244,7 +240,6 @@
                 </div>
             </main>
         </div>
-    </div>
 
     <!-- Scripts and Chart Initialization -->
     <div th:replace="~{fragments/layout :: scripts}"></div>
