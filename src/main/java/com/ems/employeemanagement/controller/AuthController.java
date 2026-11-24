@@ -48,7 +48,7 @@ public class AuthController {
         }
 
         if (error != null) {
-            model.addAttribute("errorMessage", "Invalid email or password. Please try again.");
+            model.addAttribute("errorMessage", "Invalid email or password.");
         }
         if (logout != null) {
             model.addAttribute("logoutMessage", "You have been logged out successfully.");
@@ -93,7 +93,8 @@ public class AuthController {
             redirectAttributes.addFlashAttribute("successMessage", "Account created successfully! You can now log in.");
             return "redirect:/login";
         } catch (DuplicateResourceException e) {
-            bindingResult.rejectValue("email", "error.user", "An account with this email already exists");
+            bindingResult.rejectValue("email", "error.user", "This email is already registered. Please log in.");
+            model.addAttribute("duplicateEmail", true);
             model.addAttribute("pageTitle", "Create Account");
             return "signup";
         } catch (Exception e) {

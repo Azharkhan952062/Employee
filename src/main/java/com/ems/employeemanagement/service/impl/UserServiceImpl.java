@@ -35,10 +35,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User registerUser(UserRegistrationDto registrationDto) {
-        log.info("Attempting to register user with email: {}", registrationDto.getEmail());
+        String normalizedEmail = registrationDto.getEmail() != null ? registrationDto.getEmail().trim().toLowerCase() : "";
+        log.info("Attempting to register user with email: {}", normalizedEmail);
 
-        if (userRepository.existsByEmail(registrationDto.getEmail())) {
-            throw new DuplicateResourceException("User", "email", registrationDto.getEmail());
+        if (userRepository.existsByEmail(normalizedEmail)) {
+            throw new DuplicateResourceException("User", "email", normalizedEmail);
         }
 
         if (!registrationDto.getPassword().equals(registrationDto.getConfirmPassword())) {
@@ -46,8 +47,8 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = new User();
-        user.setFullName(registrationDto.getFullName());
-        user.setEmail(registrationDto.getEmail().trim().toLowerCase());
+        user.setFullName(registrationDto.getFullName() != null ? registrationDto.getFullName().trim() : "");
+        user.setEmail(normalizedEmail);
         user.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
         user.setRole("ROLE_ADMIN");
 
