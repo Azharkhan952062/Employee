@@ -27,14 +27,10 @@ USER appuser
 # Copy built executable jar from builder stage
 COPY --from=builder /app/target/employee-management-system-*.jar app.jar
 
-# Render injects PORT dynamically (default 8080)
+# Render injects PORT dynamically (defaults to 8080)
 ENV PORT=8080
-EXPOSE 8080
+EXPOSE ${PORT}
 
 # Production JVM optimizations for containerized environments
-ENTRYPOINT ["java", \
-    "-XX:+UseContainerSupport", \
-    "-XX:MaxRAMPercentage=75.0", \
-    "-Djava.security.egd=file:/dev/./urandom", \
-    "-Dserver.port=${PORT}", \
-    "-jar", "app.jar"]
+# Configured to listen on 0.0.0.0 via server.address and dynamic ${PORT}
+ENTRYPOINT ["sh", "-c", "exec java -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom -Dserver.port=${PORT:-8080} -Dserver.address=0.0.0.0 -jar app.jar"]

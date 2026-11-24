@@ -19,12 +19,16 @@ public class DatabaseConfig {
 
     private static final Logger log = LoggerFactory.getLogger(DatabaseConfig.class);
 
+    /**
+     * Condition matches when Render provides DATABASE_URL in standard URI format
+     * (postgres:// or postgresql://) and standard DB_URL is not set directly as a JDBC URL.
+     */
     public static class RenderPostgresCondition implements Condition {
         @Override
         public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-            String dbUrl = context.getEnvironment().getProperty("DATABASE_URL");
+            String dbUrl = System.getenv("DATABASE_URL");
             if (dbUrl == null || dbUrl.isBlank()) {
-                dbUrl = System.getenv("DATABASE_URL");
+                dbUrl = context.getEnvironment().getProperty("DATABASE_URL");
             }
             return dbUrl != null && !dbUrl.isBlank() && 
                    (dbUrl.startsWith("postgres://") || dbUrl.startsWith("postgresql://"));

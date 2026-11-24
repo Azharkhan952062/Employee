@@ -11,13 +11,14 @@ services:
     plan: free
     region: oregon
     dockerfilePath: Dockerfile
-    healthCheckPath: /dashboard
+    healthCheckPath: /login
     envVars:
-      - key: SPRING_PROFILES_ACTIVE
-        value: prod
-      - key: USE_RENDER_DATABASE_URL
-        value: "true"
-      # Wire Render PostgreSQL connection string automatically
+      - key: PORT
+        value: 10000
+      - key: DB_URL
+        fromDatabase:
+          name: ems-postgres
+          property: connectionString
       - key: DATABASE_URL
         fromDatabase:
           name: ems-postgres

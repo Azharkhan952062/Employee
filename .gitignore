@@ -3,6 +3,16 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Environment and secrets
+.env
+.env.*
+*.local
+
+# Scratch and test files
+scratch/
+cookies.txt
+*.log
+
 ### STS ###
 .apt_generated
 .classpath
