@@ -56,6 +56,13 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
+    window.openDeleteModalFromBtn = function (btn) {
+        if (!btn) return;
+        const id = btn.getAttribute('data-id');
+        const name = btn.getAttribute('data-name');
+        window.openDeleteModal(id, name);
+    };
+
     window.closeDeleteModal = function () {
         const modal = document.getElementById('deleteModal');
         if (modal) {
