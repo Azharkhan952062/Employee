@@ -194,12 +194,34 @@ public class EmployeeController {
         }
     }
 
+    @GetMapping("/employees/{id}/delete")
+    public String deleteEmployeeGet(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        log.warn("GET request received for delete endpoint on employee id: {}. Redirecting to directory.", id);
+        redirectAttributes.addFlashAttribute("errorMessage", 
+                "Deletion must be confirmed through the employee management interface.");
+        return "redirect:/employees";
+    }
+
     @PostMapping("/employees/{id}/delete")
     public String deleteEmployee(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
-        EmployeeResponseDto emp = employeeService.getEmployeeById(id);
-        employeeService.deleteEmployee(id);
-        redirectAttributes.addFlashAttribute("successMessage", 
-                "Employee " + emp.getFullName() + " has been permanently deleted.");
+        try {
+            EmployeeResponseDto emp = null;
+            try {
+                emp = employeeService.getEmployeeById(id);
+            } catch (Exception ignored) {
+                // Ignore if employee cannot be retrieved prior to delete
+            }
+            employeeService.deleteEmployee(id);
+            String name = (emp != null && emp.getFullName() != null && !emp.getFullName().isBlank()) 
+                    ? emp.getFullName() 
+                    : ("ID #" + id);
+            redirectAttributes.addFlashAttribute("successMessage", 
+                    "Employee " + name + " has been permanently deleted.");
+        } catch (Exception ex) {
+            log.error("Error deleting employee with id: {}", id, ex);
+            redirectAttributes.addFlashAttribute("errorMessage", 
+                    "Failed to delete employee: " + ex.getMessage());
+        }
         return "redirect:/employees";
     }
 

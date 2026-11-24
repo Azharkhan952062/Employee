@@ -149,4 +149,32 @@ class EmployeeControllerTest {
                 .andExpect(redirectedUrl("/employees"))
                 .andExpect(flash().attributeExists("successMessage"));
     }
+
+    @Test
+    @DisplayName("POST /employees/{id}/delete with CSRF - Should successfully delete and redirect to /employees")
+    void deleteEmployee_WithCsrf_RedirectsOnSuccess() throws Exception {
+        when(employeeService.getEmployeeById(1L)).thenReturn(sampleResponse);
+
+        mockMvc.perform(post("/employees/1/delete")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/employees"))
+                .andExpect(flash().attributeExists("successMessage"));
+    }
+
+    @Test
+    @DisplayName("POST /employees/{id}/delete without CSRF - Should be rejected with 403 Forbidden")
+    void deleteEmployee_WithoutCsrf_Forbidden() throws Exception {
+        mockMvc.perform(post("/employees/1/delete"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("GET /employees/{id}/delete - Should safely redirect to /employees with info message instead of 403/405")
+    void deleteEmployee_ViaGet_RedirectsSafely() throws Exception {
+        mockMvc.perform(get("/employees/1/delete"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/employees"))
+                .andExpect(flash().attributeExists("errorMessage"));
+    }
 }

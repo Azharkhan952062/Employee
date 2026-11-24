@@ -131,10 +131,26 @@ document.addEventListener('DOMContentLoaded', function () {
         const nameSpan = document.getElementById('deleteEmployeeName');
 
         if (modal && form) {
-            form.action = '/employees/' + employeeId + '/delete';
+            form.action = '/employees/' + encodeURIComponent(employeeId) + '/delete';
             if (nameSpan) {
                 nameSpan.textContent = employeeName;
             }
+
+            // Ensure CSRF input is populated from meta tag if not already set
+            let csrfInput = form.querySelector('input[name="_csrf"]');
+            if (!csrfInput || !csrfInput.value) {
+                const metaCsrf = document.querySelector('meta[name="_csrf"]');
+                if (metaCsrf && metaCsrf.content) {
+                    if (!csrfInput) {
+                        csrfInput = document.createElement('input');
+                        csrfInput.type = 'hidden';
+                        csrfInput.name = '_csrf';
+                        form.appendChild(csrfInput);
+                    }
+                    csrfInput.value = metaCsrf.content;
+                }
+            }
+
             modal.classList.add('open');
         }
     };
